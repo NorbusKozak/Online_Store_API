@@ -6,3 +6,5 @@ __pycache__/
 venv/
 env/
 plan.txt
+make_admin.py
+seed_db.py

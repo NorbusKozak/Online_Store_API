@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from models import User, Product, Order, OrderItem
-from schemas import UserCreateValidator, ProductValidator, ItemAddToCartValidator, OrderCreateValidator, ShowProductValidator
+from schemas import UserCreateValidator, ProductValidator, OrderCreateValidator, ShowProductValidator
 
 #encryption of a password
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")
@@ -84,7 +84,7 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
     
     return user
-#searching for the product
+
 def get_products(db: Session, product_data: ShowProductValidator):
 
     if product_data.max_price is not None:
