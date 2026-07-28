@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, PositiveInt, PositiveFloat
-from typing import List
+from pydantic import BaseModel, EmailStr, ConfigDict, PositiveInt, PositiveFloat, Field
+from typing import List, Optional
 
 
 class UserCreateValidator(BaseModel):
@@ -30,7 +30,6 @@ class ProductResponseValidator(BaseModel):
     price: PositiveFloat
     stock: PositiveInt
 
-
 class ItemAddToCartValidator(BaseModel):
     product_id: PositiveInt
     quantity: PositiveInt
@@ -44,3 +43,16 @@ class OrderResponseValidator(BaseModel):
     id: int
     user_id: int
     total_price: float
+
+class ShowProductValidator(BaseModel):
+    skip: int = Field(default=0, ge=0)
+    limit: PositiveInt = Field(default=10)
+    max_price: Optional[PositiveFloat] = Field(default=100000.0)
+
+    
+class ShowProductsResponseValidator(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    description: str
+    price: PositiveFloat

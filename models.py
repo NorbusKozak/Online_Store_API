@@ -39,6 +39,7 @@ class OrderItem(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
     product_id = Column(Integer, ForeignKey("products.id"))
+    name = Column(String)
     quantity = Column(Integer, default=1)
 
     # relation

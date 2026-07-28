@@ -1,11 +1,12 @@
 from fastapi import FastAPI, status, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import get_db, engine
-from schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator
-from crud import create_user, add_product, create_order, authenticate_user
+from schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator, ShowProductsResponseValidator, ShowProductValidator
+from crud import create_user, add_product, create_order, authenticate_user, get_products
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from dotenv import load_dotenv
+from typing import List
 import models
 import jwt
 import os
@@ -99,3 +100,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(data={"sub": str(user.id)})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get('/show_products', response_model=List[ShowProductsResponseValidator], status_code=status.HTTP_200_OK)
+def show_products(prod: ShowProductValidator = Depends(), db: Session = Depends(get_db)):
+    products = get_products(db=db, product_data=prod)
+
+    if not products:
+        raise HTTPException(status_code=400, detail="Not able to find any of the products under such price.")
+
+    return products
