@@ -1,0 +1,12 @@
+
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: fastapi_sklep
+    ports:
+      - "8000:8000"
+    volumes:
+      # To jest magia "live-reload": mapuje Twój lokalny folder do /app w kontenerze
+      - .:/app
