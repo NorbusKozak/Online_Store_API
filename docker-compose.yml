@@ -12,17 +12,17 @@ services:
     depends_on:
       - db
 
-db:
-  image: postgres:15-alpine
-  container_name: postgres_database
-  environment:
-    POSTGRES_USER: admin
-    POSTGRES_PASSWORD: password
-    POSTGRES_DB: shop_db
-  ports:
-   - "5432:5432"
-  volumes:
-   - postgres_data:/var/lib/postgresql/data
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_database
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shop_db
+    ports:
+    - "5432:5432"
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
   
 volumes:
   postgres_data:
