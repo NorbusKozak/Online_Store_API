@@ -1,19 +1,29 @@
 from fastapi import FastAPI, status, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database import get_db, engine
-from schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator, ShowProductsResponseValidator, ShowProductValidator
-from crud import create_user, add_product, create_order, authenticate_user, get_products
+from app.database import get_db, engine
+from app.schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator, ShowProductsResponseValidator, ShowProductValidator
+from app.crud import create_user, add_product, create_order, authenticate_user, get_products
 from fastapi.security import OAuth2PasswordRequestForm
-from dependencies import create_access_token, get_current_user
-from dependencies import get_admin_user
+from app.dependencies import create_access_token, get_current_user
+from app.dependencies import get_admin_user
 from typing import List
-import models
+import app.models as models
 
 #import Base from models for sql to know what tables to use
 models.Base.metadata.create_all(bind = engine)
 
 #starting an app
 app = FastAPI(title="First Online Shop")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
         
 #there were no used try/except block beacuse return of function in crud is either variable or none
 # if none then there is no need for handling exception here beacuse it will never execute

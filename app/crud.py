@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from models import User, Product, Order, OrderItem
-from schemas import UserCreateValidator, ProductValidator, OrderCreateValidator, ShowProductValidator
+from app.models import User, Product, Order, OrderItem
+from app.schemas import UserCreateValidator, ProductValidator, OrderCreateValidator, ShowProductValidator
 
 #encryption of a password
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")

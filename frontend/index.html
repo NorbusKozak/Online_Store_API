@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My API Store</title>
+    
+    <!-- 1. The "Paint": Importing Bootstrap framework for quick, professional CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- 2. The "Skeleton": Basic HTML structure -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Welcome to Our Python Store</h1>
+        
+        <!-- This empty div is our target container. JavaScript will inject products here. -->
+        <div id="products-container" class="row">
+            <p class="text-center text-muted" id="loading-msg">Loading products from Docker API...</p>
+        </div>
+    </div>
+
+    <!-- 3. The "Brain": JavaScript logic to fetch and display data -->
+    <script>
+        // Define the URL of your FastAPI backend (Make sure this matches your endpoint)
+        const apiUrl = 'http://localhost:8000/show_products'; 
+
+        // Async function to fetch data from the server without freezing the browser
+        async function fetchProducts() {
+            try {
+                // Send an HTTP GET request to the API
+                const response = await fetch(apiUrl);
+                
+                // Check if the server responded correctly
+                if (!response.ok) {
+                    throw new Error('Network response was not ok. Status: ' + response.status);
+                }
+
+                // Parse the raw response body into a JavaScript array of objects (JSON)
+                const products = await response.json();
+                
+                // Pass the data to our rendering function
+                displayProducts(products);
+
+            } catch (error) {
+                // Log technical details in the browser console (F12)
+                console.error('Error fetching data:', error);
+                
+                // Show user-friendly error message on the screen
+                document.getElementById('loading-msg').innerText = 'Failed to load products. Is your Docker running?';
+            }
+        }
+
+        // Function responsible for generating HTML blocks based on data
+        function displayProducts(products) {
+            // Locate the empty container in the DOM (Document Object Model)
+            const container = document.getElementById('products-container');
+            
+            // Clear the "Loading..." message
+            container.innerHTML = '';
+
+            // Loop through each product received from the database
+            products.forEach(product => {
+                
+                // Create a dynamic HTML string using template literals (backticks ` `)
+                // We use Bootstrap classes like 'card', 'shadow-sm', 'btn-primary' for styling
+                const productCard = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text text-muted">${product.description || 'No description available'}</p>
+                                <h6 class="text-success">$${product.price}</h6>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <button class="btn btn-primary w-100">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Append the generated HTML block to our container
+                container.innerHTML += productCard;
+            });
+        }
+
+        // Trigger the fetch process immediately when the script loads
+        fetchProducts();
+    </script>
+
+</body>
+</html>

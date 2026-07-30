@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from fastapi import status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
-from database import get_db
+from app.database import get_db
 import jwt
 import os
-import models
+import app.models as models
 
 
 load_dotenv()
