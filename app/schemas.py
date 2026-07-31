@@ -56,3 +56,14 @@ class ShowProductsResponseValidator(BaseModel):
     name: str
     description: str
     price: PositiveFloat
+
+
+class SearchProductValidator(BaseModel):
+    name: str
+
+class SearchProductResponseValidator(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    price: PositiveFloat
+    stock: PositiveInt

@@ -2,8 +2,8 @@ from fastapi import FastAPI, status, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.database import get_db, engine
-from app.schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator, ShowProductsResponseValidator, ShowProductValidator
-from app.crud import create_user, add_product, create_order, authenticate_user, get_products
+from app.schemas import UserCreateValidator, UserResponseValidator, ProductValidator, ProductResponseValidator, OrderCreateValidator, OrderResponseValidator, ShowProductsResponseValidator, ShowProductValidator, SearchProductResponseValidator, SearchProductValidator
+from app.crud import create_user, add_product, create_order, authenticate_user, get_products, search_products
 from fastapi.security import OAuth2PasswordRequestForm
 from app.dependencies import create_access_token, get_current_user
 from app.dependencies import get_admin_user
@@ -36,24 +36,6 @@ def register_user(user: UserCreateValidator, db:Session = Depends(get_db)):
 
     return register
 
-@app.post('/products', response_model=ProductResponseValidator ,status_code=status.HTTP_201_CREATED)
-def enter_product(product: ProductValidator, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
-    new_product = add_product(db=db, product_data=product)
-
-    if not new_product:
-        raise HTTPException(status_code=400, detail="Unable to add product to database.")
-
-    return new_product
-
-@app.post('/orders', response_model=OrderResponseValidator, status_code=status.HTTP_201_CREATED)
-def order_create(order: OrderCreateValidator, current_user: models.User = Depends(get_current_user) ,db:Session = Depends(get_db)):
-    new_order = create_order(db=db, order_data=order, user_id=current_user.id)
-
-    if not new_order:
-        raise HTTPException(status_code=400, detail="Unable to create an order.")
-
-    return new_order
-
 @app.post('/login')
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db=db, email=form_data.username, password=form_data.password)
@@ -67,6 +49,24 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.post('/add_products', response_model=ProductResponseValidator ,status_code=status.HTTP_201_CREATED)
+def enter_product(product: ProductValidator, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    new_product = add_product(db=db, product_data=product)
+
+    if not new_product:
+        raise HTTPException(status_code=400, detail="Unable to add product to database.")
+
+    return new_product
+
+@app.post('/make_order', response_model=OrderResponseValidator, status_code=status.HTTP_201_CREATED)
+def order_create(order: OrderCreateValidator, current_user: models.User = Depends(get_current_user) ,db:Session = Depends(get_db)):
+    new_order = create_order(db=db, order_data=order, user_id=current_user.id)
+
+    if not new_order:
+        raise HTTPException(status_code=400, detail="Unable to create an order.")
+
+    return new_order
+
 @app.get('/show_products', response_model=List[ShowProductsResponseValidator], status_code=status.HTTP_200_OK)
 def show_products(prod: ShowProductValidator = Depends(), db: Session = Depends(get_db)):
     products = get_products(db=db, product_data=prod)
@@ -75,3 +75,12 @@ def show_products(prod: ShowProductValidator = Depends(), db: Session = Depends(
         raise HTTPException(status_code=400, detail="Not able to find any of the products under such price.")
 
     return products
+
+@app.get('/search_products', response_model=List[SearchProductResponseValidator], status_code=status.HTTP_200_OK)
+def search_name_products(prod: SearchProductValidator = Depends(), db: Session = Depends(get_db)):
+    product = search_products(db=db, search_data=prod)
+
+    if not product:
+        raise HTTPException(status_code=400, detail=f"There is no such products as '{prod.name}'.")
+
+    return product
