@@ -4,7 +4,8 @@ from typing import List, Optional
 
 class UserCreateValidator(BaseModel):
     email: EmailStr
-    password: str 
+    password: str
+    name: str 
 
 class UserResponseValidator(BaseModel):
     model_config = ConfigDict(from_attributes=True)
