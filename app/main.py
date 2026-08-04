@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status, HTTPException, Depends
+from fastapi import FastAPI, status, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.database import get_db, engine
@@ -9,6 +9,7 @@ from app.dependencies import create_access_token, get_current_user
 from app.dependencies import get_admin_user
 from typing import List
 import app.models as models
+from app.email_utils import send_activation_email
 
 #import Base from models for sql to know what tables to use
 models.Base.metadata.create_all(bind = engine)
@@ -16,6 +17,7 @@ models.Base.metadata.create_all(bind = engine)
 #starting an app
 app = FastAPI(title="First Online Shop")
 
+# allows backend and fronted to 'talk' with each other
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,11 +30,13 @@ app.add_middleware(
 #there were no used try/except block beacuse return of function in crud is either variable or none
 # if none then there is no need for handling exception here beacuse it will never execute
 @app.post('/register', response_model=UserResponseValidator, status_code=status.HTTP_201_CREATED)
-def register_user(user: UserCreateValidator, db:Session = Depends(get_db)):
+def register_user(user: UserCreateValidator, background_tasks: BackgroundTasks, db:Session = Depends(get_db)):
     register = create_user(db=db, user_data=user)
 
     if not register:
         raise HTTPException(status_code=400, detail="Unable to create account. E-mail might be taken")
+
+    background_tasks.add_task(send_activation_email, register.email, user.name)
 
     return register
 
