@@ -8,3 +8,4 @@ env/
 plan.txt
 make_admin.py
 seed_db.py
+.DS_Store
